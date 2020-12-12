@@ -1,0 +1,184 @@
+---
+html_document:
+  df_print: paged
+author: "Group BUAN635.501-1"
+date: "2/8/2020"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+  word_document: default
+title: "Homework 1"
+word_document: default
+---
+
+**CLASS**: "BUAN 6356"  
+**GROUP MEMBERS**: "Sai Raghavendra Sridhar(sxs180281), Shreya Tippannawar(sst190000), Smruti Viswanath Iyer(sxi180001), Piyush Dangwal(pxd142430),Shanshan Luo(sxl130330)"
+
+
+## Solutions :
+### a. Load the package "data.table":
+```{r}
+if(!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, gplots, GGally, tinytex, data.table, reshape, knitr)
+search()
+```
+
+
+### b. Read in the data from "Utilities":
+```{r}
+Utilities.dt <- read.csv("Utilities.csv")
+```
+
+
+### **Question 1: Compute the minimum, maximum, mean, median, and standard deviation for each of the numeric variables using data.table package.  Which variable(s) has the largest variability?  Explain your answer**  
+
+```{r}
+Fixed_charge_vector <- c(min(Utilities.dt$Fixed_charge),max(Utilities.dt$Fixed_charge),
+                         mean(Utilities.dt$Fixed_charge),median(Utilities.dt$Fixed_charge),
+                         sd(Utilities.dt$Fixed_charge))
+
+RoR_vector <- c(min(Utilities.dt$RoR), max(Utilities.dt$RoR), 
+                mean(Utilities.dt$RoR),median(Utilities.dt$RoR),
+                sd(Utilities.dt$RoR))
+
+Cost_vector <- c(min(Utilities.dt$Cost),max(Utilities.dt$Cost),
+                 mean(Utilities.dt$Cost),median(Utilities.dt$Cost), 
+                 sd(Utilities.dt$Cost))
+
+Load_factor_vector <- c(min(Utilities.dt$Load_factor), max(Utilities.dt$Load_factor),
+                        mean(Utilities.dt$Load_factor),median(Utilities.dt$Load_factor),
+                        sd(Utilities.dt$Load_factor))
+
+Demand_growth_vector <- c(min(Utilities.dt$Demand_growth),max(Utilities.dt$Demand_growth),
+                          mean(Utilities.dt$Demand_growth),median(Utilities.dt$Demand_growth),
+                          sd(Utilities.dt$Demand_growth))
+
+Sales_vector <- c(min(Utilities.dt$Sales), max(Utilities.dt$Sales), 
+                  mean(Utilities.dt$Sales),median(Utilities.dt$Sales), 
+                  sd(Utilities.dt$Sales))
+
+Nuclear_vector <- c(min(Utilities.dt$Nuclear),max(Utilities.dt$Nuclear),
+                    mean(Utilities.dt$Nuclear),median(Utilities.dt$Nuclear),
+                    sd(Utilities.dt$Nuclear))
+
+Fuel_cost_vector <- c(min(Utilities.dt$Fuel_Cost),max(Utilities.dt$Fuel_Cost),
+                      mean(Utilities.dt$Fuel_Cost),median(Utilities.dt$Fuel_Cost),
+                      sd(Utilities.dt$Fuel_Cost))
+
+Comparison_df <- data.frame(Fixed_charge_vector,RoR_vector,Cost_vector,Load_factor_vector, 
+                            Demand_growth_vector,Sales_vector, Nuclear_vector,
+                            Fuel_cost_vector )
+
+row.names(Comparison_df) <- c("Minimum","Maximum","Mean","Median","Standard Deviation")
+
+### Comparison table for Utilities variable
+
+Comparison_df
+
+```
+### Answer 1: From above comparison dataframe we get to know that sales_vector has highest SD.From that we can infer that sales_vector has largest variability.
+
+### **Question 2: Create boxplots for each of the numeric variables. Are there any extreme values for any of the variables?  Which ones?  Explain your answer**  
+
+```{r}
+###Fixed_charge_Box plot
+ggplot(Utilities.dt) +
+  geom_boxplot(aes(y= Fixed_charge),fill = "cyan", outlier.color = "red")+
+  ggtitle("Fixed charge-box plot")
+
+###RoR_Box plot
+ggplot(Utilities.dt) +
+  geom_boxplot(aes(y= RoR),fill = "cyan", outlier.color = "red")+
+  ggtitle("RoR-box plot")
+
+###Cost Box Plot
+ggplot(Utilities.dt) +
+  geom_boxplot(aes(y= Cost),fill = "cyan", outlier.color = "red")+
+  ggtitle("Cost-box plot")
+
+###Load_factor Box Plot
+ggplot(Utilities.dt) +
+  geom_boxplot(aes(y= Load_factor),fill = "cyan", outlier.color = "red")+
+  ggtitle("Load factor-box plot")
+
+###Demand_growth Box Plot
+ggplot(Utilities.dt) +
+  geom_boxplot(aes(y= Demand_growth),fill = "cyan", outlier.color = "red")+
+  ggtitle("Demand growth-box plot")
+
+###Sales Box Plot
+ggplot(Utilities.dt) +
+  geom_boxplot(aes(y= Sales),fill = "cyan", outlier.color = "red")+
+  ggtitle("Sales-box plot")
+
+###Nuclear Box Plot
+ggplot(Utilities.dt) +
+  geom_boxplot(aes(y= Nuclear),fill = "cyan", outlier.color = "red")+
+  ggtitle("Nuclear-box plot")
+
+###Fuel_cost
+ggplot(Utilities.dt) +
+  geom_boxplot(aes(y= Fuel_Cost),fill = "cyan", outlier.color = "red")+
+  ggtitle("Fuel Cost-box plot")
+
+```
+
+### Interpretation of Solution 2: Yes, from the box plot of the 8 variables we can infer that there are extreme values. Fixed charge and Sales variable has 4 and 2 values as outliers respectively. There are extreme values for both the variables. The values are nearly 1.5 times interquartile range.
+
+### **Question 3: Create a heatmap for the numeric variables. Discuss any interesting trend you see in this chart**  
+
+
+```{r}
+correlation_matrix <- round(cor(Utilities.dt[,-c(1)]),2)
+melted_correlation_matrix <- melt(correlation_matrix)
+ggplot(melted_correlation_matrix,aes(x=X1,y=X2,fill = value))+
+  scale_fill_gradient(low = "brown",high = "blue")+
+  geom_tile()+
+  geom_text(aes(x=X1,y=X2,label = value))+
+  theme(text = element_text(size = 10), axis.text.x = element_text(angle = 90,hjust = 1))+
+  ggtitle("Heatmap for Utilities dataset variables")
+
+```
+
+### Answer 3 : There is extreme positive correlation between RoR and Fixed_Charge as we can see from the figure with correlation coefficient of 0.64. Second comes RoR and Fixed_Charge with correlation coefficient of 0.49.The third most is between Demand_growth and Cost variables with a correlation coefficient of 0.44. The rise and fall between these variables are closely associated
+
+### Lowest correlation coefficient is between Sales and Fuel_Cost which is -0.56. The second most is between Nuclear and Sales variables with a correlation coefficient of -0.37. The third one is between RoR and Cost variables with a correlation coefficient of -0.35. Rise and fall goes hand in hand between these variables.
+
+### **Question 4: Run principal component analysis using unscaled numeric variables in the dataset.  How do you interpret the results from this model?**   
+
+```{r}
+pcs_u <- prcomp(Utilities.dt[,-c(1)])
+pcs_u$rot 
+summary(pcs_u)
+```
+
+### Answer 4:  From PCA for unscaled numeric variables we can infer PC1 value suits model accuracy as it accounts for 99.98% of total variance as proportion of variance is 0.9998. It is also the main contributor variance as it has SD 3549.9901. Sales component from the dataset contributes to the effect on principal components as its variation is very high as seen.
+
+### **Question 5: Next, run principal component model after scaling the numeric variables. Did the results/interpretations change?  How so?  Explain your answers.**   
+ 
+
+```{r}
+Pca_s <- prcomp(Utilities.dt[,-c(1)], scale. = T)
+Pca_s$rot
+summary(Pca_s)
+```
+
+### Answer 5: We can see that PC1 has highest standard deviation when compared with other PCs with Standard deviation of 1.4741. In case if we need model to capture 95.176% of variance we will shift from PC1 to PC6 or if we want to capture 97.883% of variance we will shift from PC1 to PC7. ROR has positive influence on the PCs. Second positive influence comes from Fixed_charge. As all these are scaled, as a result sales doesnt have high variation or influence as in the previous case.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
