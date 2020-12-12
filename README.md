@@ -1,1 +1,1 @@
-# Business-Analytics-with-R---Assignments
+# Business-Analytics-with-R-Assignments
