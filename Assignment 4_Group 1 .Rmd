@@ -1,0 +1,196 @@
+---
+html_document:
+  df_print: paged
+author: "Group BUAN636.501-1"
+date: "04/10/2020"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+  word_document: default
+title: "Homework 4"
+word_document: default
+---
+
+**CLASS**: "BUAN 6356.501"  
+**GROUP MEMBERS**: "Sai Raghavendra Sridhar(sxs180281), Shreya Tippannawar(sst190000), Smruti Viswanath Iyer(sxi180001), Piyush Dangwal(pxd142430),Shanshan Luo(sxl130330)"
+
+
+### a. Load the packages:
+```{r warning=FALSE}
+if(!require("pacman")) install.packages("pacman")
+pacman::p_load(caret, data.table, ISLR, tidyr, devtools, ggplot2, tidyverse,gains, leaps, rpart, 
+rpart.plot, gbm , randomForest , tinytex, knitr,magrittr,dplyr,tree)
+search()
+
+```
+
+
+### b. Exploring the dataset:
+
+```{r}
+set.seed(42)
+library(e1071)
+dim(Hitters)
+str(Hitters)
+Hitters.df <- data.frame(Hitters)
+summary(Hitters.df)
+```
+
+
+####*Question 1: Remove the observations with unknown salary information. How many observations were removed in this process? 
+
+```{r explore}
+Hitters.cleant <- Hitters[!(is.na(Hitters$Salary)),]
+rows.removed <- nrow(Hitters) - nrow(Hitters.cleant)
+rows.removed
+
+# Verification of no 'NA' values in SALARy
+sapply(Hitters.cleant$Salary, function(Salary) sum(length(which(is.na(Salary)))))
+dim(Hitters.cleant)
+```
+#*Interpretation 1: Here 59 observations of 322 observations is removed resulting in total of 263 records in the new dataframe. The new dataframe is Hitters.cleant
+
+
+###*Question 2 :Transform the salaries using a (natural) log transformation. Can you justify this transformation? 
+
+```{r}
+ggplot(data = Hitters.cleant, aes(Salary)) + geom_histogram()
+
+skewness(Hitters.cleant$Salary)
+
+lm_log.model = lm(log(Salary) ~. , data = Hitters)
+summary(lm_log.model)
+
+ggplot(data = Hitters.cleant, aes(log(Salary))) + geom_histogram()
+
+```
+#*Interpretation 2: From skewness of the plot we can see that it is right skewed. It doesnt go along with the assumption that the data has to be normally distributed. Hence to overcome this problem we take log of salary. By taking log we can notice the transformation in the salary variable.
+
+####*Question 3:Create a scatterplot with Hits on the y-axis and Years on the x-axis using all the observations.  Color code the observations using the log Salary variable.  What patterns do you notice on this chart, if any?
+
+```{r}
+ggplot(data = Hitters.cleant, aes(x = Years, y = Hits, colour=log(Salary))) +
+geom_point() +
+     ggtitle("Hits vs Years Scatterplot")
+```
+
+#*Interpretation 3: From the scatterplot we can notice that as years increase the value of log salary variable increase. The darker regions are observed more in the intial distribution and as lighter regions in the later years. From the graph we can notice that the hits variable does not have much influence in the distribution across in the log(salary).
+
+####*Question 4: Run a linear regression model of Log Salary on all the predictors using the entire dataset.  Use regsubsets() function to perform best subset selection from the regression model.  Identify the best model using BIC.  Which predictor variables are included in this (best) model? 
+
+```{r}
+lm_log.model = lm(log(Salary) ~. , data = Hitters.cleant)
+reg.search <- regsubsets(log(Salary) ~ ., data = Hitters.cleant, nbest = 1, nvmax = dim(Hitters.cleant)[2],
+method = "exhaustive")
+sum <- summary(reg.search)
+sum
+
+which.max(sum$adjr2)
+
+sum$cp
+
+sub_lm_log.model <- lm(log(Salary) ~ AtBat+Hits+Walks+Years+CRuns+CWalks+PutOuts, data = Hitters.cleant)
+BIC(lm_log.model)
+
+BIC(sub_lm_log.model)
+```
+#*Interpretation 4: The best model from BIC is linear regression obtained through exhaustive search because on comparing the BIC values between subset selection(BIC = 532.03) and linear regression(BIC = 585.54), we can see that the BIC value is low for exhaustive search. At beginning we run linear regression using all variables, then we run the subset selection to find best subset. Through adj R2 we see that subset 13 has highest value. But by using Cp value we find out that for susbset 7 we have reduced the number of predictors and the model seems to best.Also the 7 predictor variables included from the best model are CRuns, Hits, Cwalks, Walks, Putouts, Years, AtBat.(Note : Based on the Cp value we decide to go with 7 predictors from the exhaustive search as 7th Cp = 8.6 which is closer to p+1).
+
+####*Question 5: Now create a training data set consisting of 80 percent of the observations, and a test data set consisting of the remaining observations. 
+
+
+```{r}
+train.index <- sample(row.names(Hitters.cleant), 0.8*dim(Hitters.cleant)[1])
+
+valid.index <- setdiff(row.names(Hitters.cleant), train.index)
+
+train.df <- Hitters.cleant[train.index, c("Salary", "Hits", "Walks", "Years", "CRuns", "AtBat", "CWalks","PutOuts")]
+valid.df <- Hitters.cleant[valid.index, c("Salary", "Hits", "Walks", "Years", "CRuns", "AtBat", "CWalks","PutOuts")]
+```
+#*Interpretation 5: The training set and testing set has been created as required
+
+
+####*Question 6:Generate a regression tree of log Salary using only Years and Hits variables from the training data set.  Which players are likely to receive highest salaries according to this model?  Write down the rule and elaborate on it.
+
+```{r}
+tree.model <- rpart(log(Salary) ~ Years+Hits, data = train.df,
+method = "anova")
+prp(tree.model, type = 1, extra = 1, under = TRUE, split.font = 2,
+varlen = -10, box.palette = "BuOr")
+
+rpart.rules(tree.model, cover = TRUE)
+
+```
+#*Interpretation 6: We get to know that highest log salary value is 6.7. A player who is playing for for more than 5 years and has more than 104 hits are predicted to recieve the highest salary as per the tree. The salary value is apprpoximated to be around 832. 
+
+####*Question 7:Now create a regression tree using all the variables in the training data set. Perform boosting on the training set with 1,000 trees for a range of values of the shrinkage parameter . Produce a plot with different shrinkage values on the xaxis and the corresponding training set MSE on the y-axis. 
+
+```{r}
+
+reg.tree <- tree(log(Salary) ~ ., data = train.df)
+summary(reg.tree)
+
+
+
+sh <- seq(0.025,0.25,0.025)
+boost.df <- data.frame(iter= seq(1, 10, 1), shrink = seq(1, 10, 1), val = rep(0, 10), testmse=rep(0, 10))
+j <- 1
+for (i in sh) {
+boost <- gbm(log(Salary)~., data=train.df, distribution = "gaussian",
+n.trees=1000, interaction.depth = 4, shrinkage = i)
+yhat.boost <- predict(boost, newdata=train.df, n.trees=1000)
+boost.df[j,2] <- i
+boost.df[j,3] <- mean((yhat.boost-log(train.df[,"Salary"]))^2)
+yhat.boost <- predict(boost, newdata=train.df, n.trees=1000)
+boost.df[j,4] <- mean((yhat.boost- log(valid.df[,"Salary"]))^2)
+j <- j+1
+}
+boost.df
+
+
+ggplot(boost.df)+
+geom_point(aes(x=shrink, y=val))+
+xlab("Shrinkage Parameter")+
+ylab("Training MSE")+
+ggtitle("Shrinkage Parameter vs Training Data MSE")
+```
+# *Interpretation 7: Boosting on training set with 1000 trees has been performed and plot has also been produced.
+
+####*Question 8:Produce a plot with different shrinkage values on the x-axis and the corresponding test set MSE on the y-axis. 
+```{r}
+
+ggplot(boost.df)+
+geom_point(aes(x=shrink, y=testmse))+
+xlab("Shrinkage Parameter")+
+ylab("Test MSE")+
+ggtitle("Shrinkage Parameter vs Test Data MSE")
+```
+
+# *Interpretation 8: We can see that shrinkage parameter increases, MSE increases too. The optimal point at which the training MSE and test MSE are minimal is 0.075 hence we assume a shrinkage of 0.075 and run the model
+
+####*Question 9:Which variables appear to be the most important predictors in the boosted model?
+```{r}
+boost <- gbm(log(Salary)~., data=train.df, distribution = "gaussian", n.trees=1000, interaction.depth = 4, shrinkage = 0.75)
+
+
+summary(boost)
+
+```
+#*Interpretation 9 - We are able to see the 7 predictor variables used in the model. CRuns seems to be the most important predictor variable which can be seen from the graph and aslo from the summary.
+
+
+####*Question 10:Now apply bagging to the training set. What is the test set MSE for this approach? 
+```{r}
+#Bagging
+hit.bag <- randomForest(log(Salary)~., data=train.df,
+mtry = 3, importance = TRUE)
+
+yhat.bag <- predict(hit.bag, valid.df)
+plot(yhat.bag, log(valid.df[,"Salary"]))
+abline(0,1)
+
+mean((yhat.bag- (log(valid.df[,"Salary"])) ) ^2)
+
+```
+#*Interpretation 10 - MSE is 0.25. Assumed number of variables to be 3 as we have have 7 variables and assuming root of 7 to be approximately 3
