@@ -18,4 +18,11 @@ Assignment 2: (Airfares dataset)
 
 -> Read the Airfares dataset
 -> Create correlation table and scatter plots between the Fare and Predictors 
-->
+-> Create a data partition by splitting into train and test dataset
+-> Run stepwise regression to reduce the number of predictors and discuss the results
+-> Use exhaustive search instead of stepwise regression 
+-> Compare predictive accuracy of stepwise and exhaustive search using RMSE
+-> Using exhaustive search predict the average fare for given charactersitics
+-> Using leaps package run backward selection regression to reduce the number of predictors
+-> Run backward selection using stepAIC()function  
+
