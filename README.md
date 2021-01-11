@@ -24,5 +24,5 @@ Assignment 2: (Airfares dataset)
 -> Compare predictive accuracy of stepwise and exhaustive search using RMSE
 -> Using exhaustive search predict the average fare for given charactersitics
 -> Using leaps package run backward selection regression to reduce the number of predictors
--> Run backward selection using stepAIC()function  
+-> Run backward selection using stepAIC() function  
 
