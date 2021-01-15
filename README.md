@@ -12,8 +12,6 @@ Assignment 1: (Utilites dataset)
 -> Run PCA on the scaled numeric variables and interpret the results from this model
 
 
-
-
 Assignment 2: (Airfares dataset)
 
 -> Read the Airfares dataset
@@ -29,6 +27,15 @@ Assignment 2: (Airfares dataset)
 Assignment 3: (spambase data)
 
 -> Read the spambase dataset
--> Examine how the predictor differs between the spam and non spam emails by comparing spam class with non spam class average. Identify the 10 predictors for which the average of 
-   difference is highest
+-> Examine how the predictor differs between the spam and non spam emails by comparing spam class with non spam class average. Identify the 10 predictors for which the average      of difference is highest
+-> Perform LDA on the training dataset
+-> Find the coefficients of Linear discriminants
+-> Generate LDA using our analysis. Explain how they are helpful in classifying spams and non spams
+-> Find how many LDAs are present in the model
+-> Generate LDA using training and validation data and find what information is presented in the plots
+-> Generate confusion matrix and calculate the specificity and sensitivity
+-> Generate lift and decile charts for the validation datasets
+-> Find accuracy by changing the probability threshold
+
+   
 
