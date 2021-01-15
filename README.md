@@ -26,3 +26,9 @@ Assignment 2: (Airfares dataset)
 -> Using leaps package run backward selection regression to reduce the number of predictors
 -> Run backward selection using stepAIC() function  
 
+Assignment 3: (spambase data)
+
+-> Read the spambase dataset
+-> Examine how the predictor differs between the spam and non spam emails by comparing spam class with non spam class average. Identify the 10 predictors for which the average of 
+   difference is highest
+
